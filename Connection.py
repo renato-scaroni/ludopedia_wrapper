@@ -26,6 +26,7 @@ class MissingConfigError(Exception):
 
 class Connnection:
     def __init__(self, conf_file = "app_conf.json") -> None:
+        self.config_required_attrs = ['APP_ID', 'APP_KEY', 'ACESS_TOKEN', "CODE_URL"]
         self.load_conf(conf_file)
         try:
             self.load_token()
@@ -53,7 +54,7 @@ class Connnection:
 
     def connect(self):
         self.validate_config()
-        url = f"https://ludopedia.com.br/oauth?app_id={self.APP_ID}&&redirect_uri=http://localhost:5000"
+        url = f"https://ludopedia.com.br/oauth?app_id={self.APP_ID}&&redirect_uri={self.CODE_URL}"
 
         print("--------------------------------------------")
         print(f"Please go to this url in your web browser {url}")
@@ -87,7 +88,7 @@ class Connnection:
 
     def validate_config(self):
         errors = []
-        attrs = ['APP_ID', 'APP_KEY', 'ACESS_TOKEN']
+        attrs = self.config_required_attrs
         for attr in attrs:
             if not hasattr(self, attr):
                 errors.append(f"Configuration {attr} is missing, please add it to your config file and reload the config.")
@@ -95,10 +96,7 @@ class Connnection:
             raise MissingConfigError("\n".join(errors))
 
     def __str__(self) -> str:
-        try:
-            conf = f"APP_ID: {self.APP_ID}\n APP_KEY: {self.APP_KEY}\n ACESS_TOKEN: {self.ACESS_TOKEN}"
-        except Exception as e:
-            conf = e
+        conf = "\n".join(map(lambda x: f"{x}: {getattr(self, x)}", self.config_required_attrs))
         return f"config file for Ludopedia API:\n {conf}"
 
 
