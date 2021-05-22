@@ -24,7 +24,7 @@ class MissingConfigError(Exception):
         self.message = message
         super().__init__(self.message)
 
-class Connnection:
+class Connection:
     def __init__(self, conf_file = "app_conf.json") -> None:
         self.config_required_attrs = ['APP_ID', 'APP_KEY', 'ACESS_TOKEN', "CODE_URL"]
         self.load_conf(conf_file)
@@ -73,7 +73,6 @@ class Connnection:
         response = requests.post(url, data={"code":code})
         self.access_token =  json.loads(response.text)["access_token"]
         self.save_token(self.access_token)
-        return response.__str__()
 
     def load_token(self):
         with open('data.pickle', 'rb') as f:
@@ -99,6 +98,6 @@ class Connnection:
         conf = "\n".join(map(lambda x: f"{x}: {getattr(self, x)}", self.config_required_attrs))
         return f"config file for Ludopedia API:\n {conf}"
 
-
 if __name__ == '__main__':
-    conn = Connnection()
+    conn = Connection()
+    conn.connect()
