@@ -3,3 +3,4 @@
 #!*.ipynb
 #!*.md
 *.json
+*.pickle
