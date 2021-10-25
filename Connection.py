@@ -6,6 +6,8 @@ from multiprocessing import Process
 import webbrowser
 import pickle
 from datetime import datetime
+from flask_script import Manager, Server
+import time
 
 SUCCESS_COLOR = "\033[92m"
 ERROR_COLOR = "\033[91m"
@@ -56,17 +58,56 @@ class Connection:
         self.validate_config()
         url = f"https://ludopedia.com.br/oauth?app_id={self.APP_ID}&&redirect_uri={self.CODE_URL}"
 
-        print("--------------------------------------------")
-        print(f"Please go to this url in your web browser {url}")
-        print("--------------------------------------------")
-        webbrowser.open(url, new=2)
+
+        # class CustomServer(Server):
+        #     def __call__(self, app, *args, **kwargs):
+        #         custom_call()
+        #         return Server.__call__(self, app, *args, **kwargs)
+
         app = Flask(__name__)
+
+        # manager = Manager(app)
+        # Remeber to add the command to your Manager instance
+        # manager.add_command('runserver', CustomServer())
+
+        # @manager.command
+        # def runserver():
+        #     app.run()
+        #     p = Process(target=custom_call)
+        #     p.start()
+
         @app.route("/")
         def hello_world():
             self.code = request.args['code']
             return self.authenticate(self.code)
             # return "Please go back to your application"
+
+        def custom_call():
+            # print("requesting")
+            # time.sleep(3)
+            # print("requesting")
+            h = {
+                "Host": "ludopedia.com.br",
+                "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+                "Accept-Language": "pt-BR,pt;q=0.8,en-US;q=0.5,en;q=0.3",
+                "Accept-Encoding": "gzip, deflate, br",
+                "Content-Type": "application/x-www-form-urlencoded",
+                "Origin": "https//ludopedia.com.br",
+                "Connection": "keep-alive",
+            }
+            r = requests.post(url, data={"autorizar": 1}, headers=h)
+            app.logger.error(r.text)
+        # manager.run()
+        custom_call()
         app.run()
+        # p = Process(target=custom_call)
+        # p.start()
+
+
+        # print("--------------------------------------------")
+        # print(f"Please go to this url in your web browser {url}")
+        # print("--------------------------------------------")
+        # webbrowser.open(url, new=2)
 
     def authenticate(self, code):
         url = "https://ludopedia.com.br/tokenrequest"
